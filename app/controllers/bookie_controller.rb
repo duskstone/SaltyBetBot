@@ -1,7 +1,7 @@
 class BookieController < ApplicationController
 
     def help 
-         render json: {body: "NO HELP!"}
+        render json: {body: "NO HELP!"}
     end
     #!bet wager "Megan_is still asleep" 3000
     #!bet status "Megan_is still asleep"

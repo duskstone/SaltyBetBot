@@ -16,9 +16,10 @@ class BetPoolsController < ApplicationController
         response = "hi"
         bets_and_users = @bets.includes(:user)
         response_arrays = bets_and_users.map{|bau| [bau.user.username, bau.wager, bau.action]}
+        title = "#{@bets.first.bet_pool.title}\n"
         response = response_arrays.map{|el| el.join(" ")}
 
-        render json: {message: response.join("\n")}
+        render json: {message: title + response.join("\n")}
     end
 
     def update
