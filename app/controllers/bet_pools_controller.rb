@@ -1,7 +1,7 @@
 class BetPoolsController < ApplicationController
 
     def index 
-        @bet_pools = BetPool.all 
+        @bet_pools = BetPool.where(winner: nil)
         current_bet_pools = []
         
         @bet_pools.each do |bet_pool| #
@@ -25,17 +25,20 @@ class BetPoolsController < ApplicationController
     def update
         @bet_pool = BetPool.find_by(title: bet_pool_params[:title])
         @user = User.find_by(username: user_params[:username])
-        @bet = Bet.find_by(user_id: @user.id, bet_pool_id: @bet_pool.id)
 
-        # add users to array based on what their action was (true/false)
-        
-        @bet_pool.update(
-            winner: bet_pool_params[:winner]
-        )
+        if @bet_pool
+            @bet_pool.update(
+                winner: bet_pool_params[:winner]
+            )
+            unless @bet_pool.winner.nil?
+                # @bet = Bet.find_by(user_id: @user.id, bet_pool_id: @bet_pool.id)
+                # add users to array based on what their action was (true/false)
+                # distribute pool (.total_salt) by dividing by array length
 
-        unless @bet_pool.winner.nil?
-            # distribute pool (.total_salt) by dividing by array length
-            render json: {message: "The pool is closed, #{@bet_pool.winner} wins!"}
+                render json: {message: "The pool is closed, #{@bet_pool.winner} wins!"}
+            end
+        else
+            render json: {message: "Bet pool not found. Enter '!bet' to see all open pools!"}
         end
     end
 
