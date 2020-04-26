@@ -7,7 +7,7 @@ class BetPoolsController < ApplicationController
         @bet_pools.each do |bet_pool| #
             current_bet_pools << "#{bet_pool.title} #{bet_pool.total_salt}"
         end 
-        render json: {body: current_bet_pools.join("\n")}
+        render json: {message: current_bet_pools.join("\n")}
     end
 
     
@@ -18,7 +18,7 @@ class BetPoolsController < ApplicationController
         response_arrays = bets_and_users.map{|bau| [bau.user.username, bau.wager, bau.action]}
         response = response_arrays.map{|el| el.join(" ")}
 
-        render json: {body: response.join("\n")}
+        render json: {message: response.join("\n")}
     end
 
     def update
