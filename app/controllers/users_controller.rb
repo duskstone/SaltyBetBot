@@ -3,7 +3,7 @@ class UsersController < ApplicationController
     def show 
         #shows user current salt
         @user = User.find(params[:id])
-        render json: "#{@user.username} has #{@user.salt} saltines"
+        render json: {body: "#{@user.username} has #{@user.salt} saltines"}
     end
 
     def create 
@@ -13,7 +13,7 @@ class UsersController < ApplicationController
         if @user.save
             redirect_to user_url(@user)
         else 
-           render json: @user.errors.full_message, status: 422
+           render json: {body: @user.errors.full_message}, status: 422
         end 
 
     end 
