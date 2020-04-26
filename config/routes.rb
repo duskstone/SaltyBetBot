@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   
   get 'bet_pools', to: "bet_pools#index"
   patch 'bet_pools', to: "bet_pools#update"
-  get 'bet_pools/:id', to: "bet_pools#show" #shows all bets mad for the betting_pool
+  get 'bet_pools/:username', to: "bet_pools#show" #shows all bets mad for the betting_pool
 
 
 

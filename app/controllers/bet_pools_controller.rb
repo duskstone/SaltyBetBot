@@ -23,42 +23,65 @@ class BetPoolsController < ApplicationController
     end
 
     def update
-        # ********** UPDATE: HOW WINNER IS DETERMINED ***********
-        # the parameter 'winner' tells us if the PLAYER has won or lost,
-        # based on that we need to determine if the value of bet_pools.winner
-        # should be set to the user's bet.action or the opposite.
-        #
-        # i.e. player1: !bet matrix is real 500 true
-        #      player1: !bet lost matrix is real
-        #
-        # in this scenario the bet_pool of title: 'matrix is real' should have
-        # its winner column set to FALSE because it is the opposit of player1's bet
-        # *******************************************************
-
         @bet_pool = BetPool.find_by(title: bet_pool_params[:title])
         @user = User.find_by(username: user_params[:username])
 
         if @bet_pool
+            sample_bet = @bet_pool.bets.find_by(bets: {user_id: @user.id})
+
+            #!!!! ASSUMES BOOLEAN ACTION & WINNING ACTION !!!!!
+            winning_action = nil
+            if bet_pool_params[:winner] #bot passes bet_pool[winner] = true in query if user won
+                winning_action = sample_bet.action
+            else  #bot passes bet_pool[winner] = false in query if user won
+                winning_action = sample_bet.action!
+            end
+            #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
             @bet_pool.update(
-                winner: bet_pool_params[:winner]
+                winner: winning_action
             )
             unless @bet_pool.winner.nil?
-                # ************ UPDATE: DISTRIBUTE WINNINGS  *************
-                # @bet = Bet.find_by(user_id: @user.id, bet_pool_id: @bet_pool.id)
-                # add users to array based on what their action was (true/false)
-                # distribute pool (.total_salt) by dividing by array length
-                # *******************************************************
-
+                @bet = Bet.find_by(user_id: @user.id, bet_pool_id: @bet_pool.id)
                 render json: {message: "The pool is closed, #{@bet_pool.winner} wins!"}
+
+                distribute_winnings(winning_action, @bet_pool)
             end
         else
             render json: {message: "Bet pool not found. Enter '!bet' to see all open pools!"}
         end
     end
 
+    def distribute_winnings(winning_action, bet_pool) 
+        winning_bets = @bet_pool.bets.where(action: winning_action)
+        winning_bets.each do |winning_bet|
+            winnings = winning_bet.user.salt * 2 #change to proprtional returns
+            winning_bet.user.update(salt: winnings)
+        end 
+        bet_pool.destroy
+    end 
+
     private
 
     def bet_pool_params
+        #update to look at body instead of params
         params.require(:bet_pool).permit(:title, :winner)
     end
 end
+
+# def distribute_winnings(winning_action, bet_pool)
+        # @users = bet_pool.users
+            # winnners = [] #need a indication to what is the winning or losing action
+            # @users.each do |user|
+            #     if user.action == winning_action #presumably in this case bet creator lost
+            #         winnners << user
+            #     end 
+            # end 
+
+            # winnings = @bet_pool.total_salt / winnners.length #seperate winnings
+            # winners.each { |wu| wu.salt += winnings } # wu => winning_user
+
+            #delete bet pool at the end of distribution 
+            #also deleting related bets
+#         bet_pool.destroy
+# end 

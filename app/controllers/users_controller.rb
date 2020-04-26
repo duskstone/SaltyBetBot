@@ -1,14 +1,11 @@
 class UsersController < ApplicationController
 
     def show 
-        #shows user current salt
-        @user = User.find(params[:id])
-        render json: {message: "#{@user.username} has #{@user.salt} saltines"}
+        @user = User.find_by(username: params[:id])
+        render json: {message: "#{@user.username} has #{@user.salt} salty doubloons"}
     end
 
-    def create 
-        #a user will only be created if they are not in 
-        #db upon creating a bet
+    def create
         @user = User.new(:username)
         if @user.save
             redirect_to user_url(@user)
@@ -17,6 +14,4 @@ class UsersController < ApplicationController
         end 
 
     end 
-
-
 end

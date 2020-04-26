@@ -15,14 +15,20 @@ class BetPool < ApplicationRecord
     foreign_key: :user_id,
     class_name: :User 
 
-    has_many :bets,
+    has_many :bets, dependent: :destroy,
     foreign_key: :bet_pool_id,
     class_name: :Bet
+
+    has_many :users,
+    through: :bets,
+    source: :user
 
     def total_salt  
         #shows the currrent amount of salt
        bets.group('bets.bet_pool_id').pluck('SUM(bets.wager)').first
-        
+    end
+
+    def true_false_bet_ratio
     end
 
     def won

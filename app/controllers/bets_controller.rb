@@ -7,6 +7,7 @@ class BetsController < ApplicationController
     end
 
     def create
+        #only allow betting in one direction
         #what if the user has no salt left?
         @bet = Bet.new(
             user_id: get_user.id,
@@ -14,6 +15,10 @@ class BetsController < ApplicationController
             action: bet_params[:action],
             bet_pool_id: get_bet_pool.id
         )
+
+        if get_user.salt == 0 || get_user.salt - @bet.wager.to_i < 0 #verifying that the bet placer has enough salt to create a bet/participate
+            return render json: "Really #{get_user.username}? Should you really be betting with such low salt count?, smh." 
+        end 
 
         if @bet.save!
             get_user.update(salt: get_user.salt - @bet.wager.to_i)
@@ -54,7 +59,7 @@ class BetsController < ApplicationController
         #how can we "sanitize" the bet pool names to make them more standardized?
         #ie removing punctuation
         if @bet_pool.nil?
-            @bet_pool = BetPool.create!(user_id: get_user.id, title: bet_params[:title])
+            @bet_pool = BetPool.create!(user_id: get_user.id, title: bet_params[:title.downcase]) #this work? added .downcase to pool creation 
         end
 
         @bet_pool
