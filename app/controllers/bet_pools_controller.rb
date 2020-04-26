@@ -1,15 +1,15 @@
 class BetPoolsController < ApplicationController
 
-
     def index 
         @bet_pools = BetPool.all 
         current_bet_pools = []
+        
         @bet_pools.each do |bet_pool| #
             current_bet_pools << "#{bet_pool.title} #{bet_pool.total_salt}"
-        end 
+        end
+
         render json: {message: current_bet_pools.join("\n")}
     end
-
     
     def show
         @bets = BetPool.find(params[:id]).bets
@@ -23,22 +23,25 @@ class BetPoolsController < ApplicationController
     end
 
     def update
-        @bet_pool = BetPool.find(params[:id])
+        @bet_pool = BetPool.find_by(title: bet_pool_params[:title])
         @user = User.find_by(username: user_params[:username])
         @bet = Bet.find_by(user_id: @user.id, bet_pool_id: @bet_pool.id)
 
         # add users to array based on what their action was (true/false)
         
+        @bet_pool.update(
+            winner: bet_pool_params[:winner]
+        )
 
-        if @bet_pool.winner
+        unless @bet_pool.winner.nil?
             # distribute pool (.total_salt) by dividing by array length
+            render json: {message: "The pool is closed, #{@bet_pool.winner} wins!"}
         end
-        #@duskstone: !bet won alex is gonna blow up
-        #patch 'bet_pools' do 'bet_pools#update' 
-        #   => params{user:{username:duskstone}, bet_pool:{title: 'alex..'}}
-        # find the bet that user made for bet_pool title 'alex...'
-        #bet_pool.winner.nil? there is no winner
-        #bet_pool.winner = true then distribute salties to all true bets
-        #etc.
+    end
+
+    private
+
+    def bet_pool_params
+        params.require(:bet_pool).permit(:title, :winner)
     end
 end

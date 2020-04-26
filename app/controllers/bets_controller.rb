@@ -29,6 +29,10 @@ class BetsController < ApplicationController
 
     private
 
+    def user_params
+       params.require(:user).permit(:username)
+    end
+
     def bet_params
         params.require(:bet).permit(:wager, :action, :title)
     end
