@@ -5,7 +5,7 @@ class BetPoolsController < ApplicationController
         current_bet_pools = []
         
         @bet_pools.each do |bet_pool| #
-            current_bet_pools << "#{bet_pool.title} #{bet_pool.total_salt}"
+            current_bet_pools << "#{bet_pool.title} #{bet_pool.total_salt} #{bet_pool.winner}"
         end
 
         render json: {message: current_bet_pools.join("\n")}

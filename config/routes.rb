@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
-  get 'bets', to: 'bets#index'
+  get 'bets', to: 'bets#index' #help method
   post 'bets', to: 'bets#create'
   
   get 'users/:id', to: "users#show"
